@@ -13,6 +13,8 @@ def index():
 def login():
     form = LoginForm()
 
+    
+
 @app.route("/logout")
 def logout():
     """Log the user out"""
