@@ -98,7 +98,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     image = db.Column(db.Text)
-    subtitle = db.Column(db.String(128))
+    slug = db.Column(db.Text, index=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     comments = db.relationship("Comment", backref="post", lazy="dynamic")

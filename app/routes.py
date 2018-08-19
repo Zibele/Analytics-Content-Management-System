@@ -10,6 +10,7 @@ from datetime import datetime
 # Timeline page
 @app.route("/")
 @app.route("/index")
+@login_required
 def index():
     """ Display the user timeline"""
     return render_template("index.html")
