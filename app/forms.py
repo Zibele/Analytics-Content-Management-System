@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from app.models import User
@@ -47,8 +48,11 @@ class EditProfileForm(FlaskForm):
 
 # Blog Submission form
 class PostForm(FlaskForm):
-    post = TextAreaField("Say something", validators=[DataRequired(), Length(min=1, max=140)])
-    submit = SubmitField("Submit")
+    title = StringField("Title", validators=[DataRequired(), Length(min=1, max=64)])
+    body = TextAreaField("Post Body", validators=[DataRequired(), Length(min=1, max=2000)])
+    image = FileField("Upload a banner image", validators=[FileAllowed(['jpg', 'png'], "Only image Allowed")
+    , FileRequired()])
+    submit = SubmitField("Post")
 
 # Reset password request form
 class ResetPasswordRequestForm(FlaskForm):

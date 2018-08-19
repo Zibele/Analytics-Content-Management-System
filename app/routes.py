@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm
 from app.models import User, Post
 from app.email import send_password_reset_email
 from datetime import datetime
@@ -72,8 +72,11 @@ def register():
 
 # Profile page
 @app.route("/user/<username>")
+@login_required
 def user(username):
-    """Display profile page"""
+    u = User.query.filter_by(username=username).first_or_404()
+
+    return render_template("user.html", user=u)
 
 # Edit profile page
 @app.route("/edit_profile", methods=["GET", "POST"])
@@ -102,8 +105,11 @@ def reset_password(token):
 
 # Add article
 @app.route("/add_article", methods=["GET", "POST"])
+@login_required
 def add_article():
-    """Add article"""
+    form = PostForm()
+
+    return render_template("add_article.html", form=form)
 
 # View article
 @app.route("/article/<title>", methods=["GET", "POST"])
