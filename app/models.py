@@ -115,7 +115,7 @@ class Post(db.Model):
         return self.slug
     
     def set_image(self, filename):
-        image = filename
+        self.image = filename
         
 
 class Comment(db.Model):

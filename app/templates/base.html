@@ -58,9 +58,11 @@
         <script src="{{ url_for('static', filename='jquery.min.js')}}"></script>
         <script src="{{ url_for('static', filename='bootstrap.bundle.min.js')}}"></script>
         <!--<script src="https://cdn.ckeditor.com/4.10.0/standard/ckeditor.js"></script> -->
-        <script src="{{ url_for('static', filename='ckeditor/ckeditor.js')}}"></script>
+        <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
         <script type="text/javascript">
             CKEDITOR.replace('editor');
         </script>
+        {{ moment.include_moment() }}
+
 </body>
 </html>
