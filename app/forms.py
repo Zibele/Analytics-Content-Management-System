@@ -50,7 +50,7 @@ class EditProfileForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired(), Length(min=1, max=64)])
     body = TextAreaField("Post Body", validators=[DataRequired(), Length(min=1, max=2000)])
-    image = FileField("Upload a banner image", validators=[FileAllowed(['jpg', 'png'], "Only image Allowed")
+    image = FileField("Upload a banner image", validators=[FileAllowed(['jpg', 'png', 'jpeg'], "Only image Allowed")
     , FileRequired()])
     submit = SubmitField("Post")
 

@@ -5,6 +5,7 @@ from werkzeug import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
 from time import time
+from slugify import slugify
 import jwt
 from app import app
 
@@ -107,6 +108,16 @@ class Post(db.Model):
     def __repr__(self):
         return f"<Post {self.body}>"
     
+    def set_slug(self, title):
+        self.slug = slugify(title)
+    
+    def get_slug(self):
+        return self.slug
+    
+    def set_image(self, filename):
+        image = filename
+        
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)

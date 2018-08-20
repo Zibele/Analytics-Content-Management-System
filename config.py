@@ -21,3 +21,9 @@ class Config(object):
 
     # Posts per page configuration
     POSTS_PER_PAGE = 3
+
+    # Limit file upload size to 16 megabytes
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+    # Specify file folder
+    UPLOAD_FOLDER = './app/static/images'

@@ -1,11 +1,13 @@
 from flask import render_template, flash, redirect, url_for, request
 from werkzeug.urls import url_parse
+from werkzeug.utils import secure_filename
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm
 from app.models import User, Post
 from app.email import send_password_reset_email
 from datetime import datetime
+import os
 
 # Timeline page
 @app.route("/")
@@ -108,6 +110,29 @@ def reset_password(token):
 @login_required
 def add_article():
     form = PostForm()
+    if form.validate_on_submit():
+        # Create the post
+        post = Post(title=form.title.data, body=form.body.data, author=current_user)
+        post.set_slug(form.title.data)
+
+        # Image handling
+        file = form.image.data
+        
+        # Change the filename
+        extension = os.path.splitext(file.filename)[1]
+        filename = post.get_slug() + extension
+
+        # Save the file to our file system
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        # Set the image
+        post.set_image(filename)
+        
+        # Add the post to db
+        db.session.add(post)
+        db.session.commit()
+        flash("You post is now online!")
+        return redirect(url_for("index"))
 
     return render_template("add_article.html", form=form)
 
