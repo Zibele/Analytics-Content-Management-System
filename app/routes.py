@@ -1,10 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, Markup
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm
-from app.models import User, Post
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm, CommentForm
+from app.models import User, Post, Comment
 from app.email import send_password_reset_email
 from datetime import datetime
 import os
@@ -143,9 +143,34 @@ def add_article():
     return render_template("add_article.html", form=form)
 
 # View article
-@app.route("/article/<title>", methods=["GET", "POST"])
-def article(title):
-    """ View individual article"""
+@app.route("/article/<slug>", methods=["GET", "POST"])
+def article(slug):
+    # Get the current page
+    post = Post.query.filter_by(slug=slug).first()
+
+    # Handle comment form handling
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data, post=post, author=current_user)
+        db.session.add(comment)
+        db.session.commit()
+        flash("You comment is now live")
+        return redirect(url_for("article", slug=slug))
+
+    # Handle pagination of comments
+    page = request.args.get("page", 1, type=int)
+    comments = post.comments.paginate(page, app.config["POSTS_PER_PAGE"], False)
+    next_url = url_for("article", slug=slug, page=comments.next_num) \
+    if comments.has_next else None
+    prev_url = url_for("article", slug=slug, page=comments.prev_num) \
+    if comments.has_prev else None
+
+    # Wrap the content as HTML
+    body = Markup(post.body)
+
+    return render_template("article.html", title=post.title, body=body, post=post, comments=comments.items, next_url=next_url, prev_url=prev_url, form=form)
+
+
 
 # Edit article
 @app.route("/edit_article", methods=["GET", "POST"])
