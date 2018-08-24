@@ -3,7 +3,7 @@
     <img class="card-img-top" src="{{ url_for('static', filename='images/' + post.image) }}" alt="Card image cap">
     <div class="card-body">
         <h2 class="card-title">{{ post.title }}</h2>
-        <p class="card-text">{{ post.body[:32] }}</p>
+        <p class="card-text">{{ post.body|striptags|truncate(256) }}</p>
         <a href="{{ url_for('article', slug=post.slug) }}" class="btn btn-primary">Read More &rarr;</a>
     </div>
     <div class="card-footer text-muted">

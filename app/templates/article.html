@@ -40,14 +40,15 @@
       <h5 class="card-header">Leave a Comment:</h5>
       <div class="card-body">
         <form action="" method="POST">
+            {{ form.csrf_token }}
           <div class="form-group">
             {{ form.body(rows="3", class="form-control") }} 
-            {% for error in form.body.errors %}
-              <div class="invalid-feedback">
-                {{ error }}
-              </div>
-            {% endfor %}
           </div>
+          {% for error in form.body.errors %}
+              <p>
+                {{ error }}
+              </p>
+            {% endfor %}
           {{ form.submit(class="btn btn-primary") }}
         </form>
       </div>
@@ -56,7 +57,7 @@
 
     {% for comment in comments %}
       <div class="media mb-4">
-        <img class="d-flex mr-3 rounded-circle" src="{{ comment.author.avatar() }}" alt="">
+        <img class="d-flex mr-3 rounded-circle" src="{{ comment.author.avatar(50) }}" alt="">
         <div class="media-body">
           <h5 class="mt-0">{{ comment.author.username }}</h5>
           {{ comment.body }}
