@@ -1,0 +1,115 @@
+{% extends 'base.html' %} {% block content %}
+<h1 mt-4>Dashboard</h1>
+<hr>
+<div class="alert alert-success my-4" role="alert">
+    <h4 class="alert-heading">We noticed Post X in Category Y is doing well</h4>
+    <p>In order to gain more viewers, we suggest that you continue posting about Category Y</p>
+    <hr>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <canvas class="my-4" id="myChart" width="900" height="300"></canvas>
+    </div>
+</div>
+
+<h2 class="">Posts</h2>
+<table class="table table-hover table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Views</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>Hello, Web Developers</td>
+            <td>Web Development</td>
+            <td>22/08/2018</td>
+            <td>1000</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Machine Learning is the Future</td>
+            <td>Artificial Intelligence</td>
+            <td>18/08/2018</td>
+            <td>845</td>
+            <td>8</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Why CSS Grid is Brilliant</td>
+            <td>Design</td>
+            <td>15/08/2018</td>
+            <td>1235</td>
+            <td>12</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Establishing Serverless technologies</td>
+            <td>Networks</td>
+            <td>12/08/2018</td>
+            <td>567</td>
+            <td>20</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>How to build a computer</td>
+            <td>Hardware</td>
+            <td>14/08/2018</td>
+            <td>454</td>
+            <td>1</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+            <a href="#" class="page-link">&larr; Previous</a>
+        </li>
+        <li class="page-item">
+            <a href="#" class="page-link">Next &rarr;</a>
+        </li>
+    </ul>
+</nav>
+{% endblock %} 
+{% block jsfiles %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["20/08/2018", "21/08/2018", "22/08/2018", "23/08/2018", "24/08/2018", "25/08/2018", "26/08/2018"],
+            datasets: [{
+                data: [100, 34, 50, 70, 23, 45, 70],
+                lineTension: 0,
+                backgroundColor: 'transparent',
+                borderColor: '#007bff',
+                borderWidth: 4,
+                pointBackgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }]
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
+</script> 
+{% endblock %}

@@ -63,6 +63,7 @@
             CKEDITOR.replace('editor');
         </script>
         {{ moment.include_moment() }}
-
+        {% block jsfiles %}{% endblock %}
+        
 </body>
 </html>
