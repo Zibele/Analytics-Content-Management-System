@@ -1,10 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, Markup
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm
-from app.models import User, Post
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, ResetPasswordRequestForm, ResetPasswordForm, PostForm, CommentForm
+from app.models import User, Post, Comment
 from app.email import send_password_reset_email
 from datetime import datetime
 import os
@@ -89,27 +89,91 @@ def user(username):
 # Edit profile page
 @app.route("/edit_profile", methods=["GET", "POST"])
 def edit_profile():
-    """Edit profile"""
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+
+        db.session.commit()
+        flash("Your changes have been saved.")
+
+        return redirect(url_for("edit_profile"))
+
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+
+    return render_template("edit_profile.html", title="Edit Profile", form=form)
 
 @app.route("/follow/<username>")
 def follow(username):
-    """Follow user"""
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(f"User {username} not found.")
+    if current_user == user:
+        flash("You cannot follow yourself!")
+        return redirect(url_for("user", username=username))
+
+    current_user.follow(user)
+    db.session.commit()
+    flash(f"You are following {username}!")
+    return redirect(url_for("user", username=username))
 
 @app.route("/unfollow/<username>")
 def unfollow(username):
-    """Unfollow user"""
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(f"User {username} not found")
+    if current_user == user:
+        flash("You cannot follow yourself!")
+        return redirect(url_for("user", username=username))
+    
+    current_user.unfollow(user)
+    db.session.commit()
+    flash(f"You are not following {username}")
+    return redirect(url_for("user", username=username))
 
 @app.route("/explore")
 def explore():
-    """ Show all posts"""
+    page = request.args.get("page", 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config["POSTS_PER_PAGE"], False)
+    next_url = url_for("explore", page=posts.next_num) \
+    if posts.has_next else None
+    prev_url = url_for("explore", page=posts.prev_num) \
+    if posts.has_prev else None
+    return render_template("explore.html", title="Explore", posts=posts.items, 
+    next_url=next_url, prev_url=prev_url)
 
 @app.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():
-    """Request password change"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
 
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    """ Change password"""
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+    user = User.verify_reset_password_token(token)
+    if not User:
+        return redirect(url_for("index"))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash("Your password has been reset.")
+        return redirect(url_for("login"))
+    return render_template("reset_password.html", form=form)
+
 
 # Add article
 @app.route("/add_article", methods=["GET", "POST"])
@@ -143,24 +207,49 @@ def add_article():
     return render_template("add_article.html", form=form)
 
 # View article
-@app.route("/article/<title>", methods=["GET", "POST"])
-def article(title):
-    """ View individual article"""
+@app.route("/article/<slug>", methods=["GET", "POST"])
+def article(slug):
+    # Get the current page
+    post = Post.query.filter_by(slug=slug).first()
+
+    # Handle comment form handling
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data, post=post, author=current_user)
+        db.session.add(comment)
+        db.session.commit()
+        flash("You comment is now live")
+        return redirect(url_for("article", slug=slug))
+
+    # Handle pagination of comments
+    page = request.args.get("page", 1, type=int)
+    comments = post.comments.paginate(page, app.config["POSTS_PER_PAGE"], False)
+    next_url = url_for("article", slug=slug, page=comments.next_num) \
+    if comments.has_next else None
+    prev_url = url_for("article", slug=slug, page=comments.prev_num) \
+    if comments.has_prev else None
+
+    # Wrap the content as HTML
+    body = Markup(post.body)
+
+    return render_template("article.html", title=post.title, body=body, post=post, comments=comments.items, next_url=next_url, prev_url=prev_url, form=form)
+
+
 
 # Edit article
 @app.route("/edit_article", methods=["GET", "POST"])
 def edit_article():
-    """Edit article"""
+    pass
 
 # Dashboard
 @app.route("/dashboard")
 def dashboard():
-    """ Show dashboard"""
+    return render_template("dashboard.html")
 
 # Record time of last visit for user
 @app.before_request
 def before_request():
-    """Record last time user was on site"""
+    pass
 
 
         
