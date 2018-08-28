@@ -5,8 +5,24 @@
     
         <!-- Blog Entries Column -->
         <div class="col-md-8">
-    
-            <h1 class="my-4">Explore Posts</h1>
+
+            <div class="row my-4">
+                <div class="col-md-6">
+                        <h1 class>Explore Posts</h1>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            Filter by
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="explore">All</a>
+                            <a class="dropdown-item" href="explore/recommended">Recommended</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Blog posts -->
             {% for post in posts %}

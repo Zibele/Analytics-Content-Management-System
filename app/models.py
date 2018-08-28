@@ -99,10 +99,13 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     image = db.Column(db.Text)
-    slug = db.Column(db.Text, index=True)
+    slug = db.Column(db.Text)
+    category = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    view_count = db.Column(db.Integer, index=True)
     comments = db.relationship("Comment", backref="post", lazy="dynamic")
+    weekly_visits = db.relationship("WeeklyVisit", backref="post", lazy="dynamic")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def __repr__(self):
@@ -126,6 +129,16 @@ class Comment(db.Model):
 
     def __repr(self):
         return f"<Comment {self.body}>"
+
+class WeeklyVisit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    monday_visit = db.Column(db.Integer)
+    tuesday_visit = db.Column(db.Integer)
+    wednesday_visit = db.Column(db.Integer)
+    thursday_visit = db.Column(db.Integer)
+    friday_visit = db.Column(db.Integer)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+    
 
 
 

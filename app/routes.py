@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, Markup
+from flask import render_template, flash, redirect, url_for, request, Markup, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_user, logout_user, login_required
@@ -45,6 +45,10 @@ def login():
         
         # Login the user and remember the user
         login_user(user, remember=form.remember_me.data)
+
+        # Create list of last visited URLS
+        session['urls'] = []
+
 
         # Redirect after logging in
         next_page = request.args.get("next")
@@ -249,7 +253,10 @@ def dashboard():
 # Record time of last visit for user
 @app.before_request
 def before_request():
-    pass
+    ""
+
+# Store last 5 Pages visited by user
+
 
 
         
